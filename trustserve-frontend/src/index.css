@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+:root {
+  --ts-primary: #0f62fe;
+  --ts-accent: #14b26d;
+  --ts-bg: #f7fbff;
+  --ts-card: rgba(255, 255, 255, 0.72);
+  --ts-text: #0f172a;
+  --ts-muted: #475569;
+}
+
+.dark {
+  --ts-bg: #020617;
+  --ts-card: rgba(15, 23, 42, 0.75);
+  --ts-text: #e2e8f0;
+  --ts-muted: #cbd5e1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(15, 98, 254, 0.14), transparent 28%),
+    radial-gradient(circle at 80% 2%, rgba(20, 178, 109, 0.18), transparent 24%),
+    radial-gradient(circle at 84% 90%, rgba(14, 165, 233, 0.12), transparent 32%),
+    var(--ts-bg);
+  color: var(--ts-text);
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.glass-card {
+  background: var(--ts-card);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+}
+
+.hero-glow {
+  position: relative;
+}
+
+.hero-glow::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  z-index: -1;
+  border-radius: 1.5rem;
+  background: linear-gradient(140deg, rgba(15, 98, 254, 0.26), rgba(20, 178, 109, 0.24));
+  filter: blur(22px);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
