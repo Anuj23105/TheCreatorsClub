@@ -166,6 +166,10 @@ export async function createBooking(payload) {
     requestBody.paymentProvider = payload.paymentProvider
   }
 
+  if (payload.paymentStatus) {
+    requestBody.paymentStatus = payload.paymentStatus
+  }
+
   return apiRequest('/bookings', {
     method: 'POST',
     auth: true,

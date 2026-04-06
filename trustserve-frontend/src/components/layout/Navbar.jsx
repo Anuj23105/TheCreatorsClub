@@ -46,7 +46,7 @@ function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-blue-100/85 backdrop-blur-xl dark:border-blue-300/60 dark:bg-blue-100/85">
+    <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-[color:var(--ts-card)] backdrop-blur-xl dark:border-white/10">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center">
           <img
@@ -57,7 +57,7 @@ function Navbar() {
         </Link>
 
         <button
-          className="rounded-lg p-2 md:hidden"
+          className="rounded-lg p-2 text-[color:var(--ts-text)] md:hidden"
           onClick={() => setOpen((prev) => !prev)}
           aria-label="Toggle menu"
         >
@@ -72,8 +72,8 @@ function Navbar() {
               className={({ isActive }) =>
                 `rounded-lg px-3 py-2 text-sm font-medium transition ${
                   isActive
-                    ? 'bg-blue-200 text-black dark:bg-blue-200 dark:text-black'
-                    : 'text-black hover:bg-blue-200 dark:text-black dark:hover:bg-blue-200'
+                    ? 'bg-slate-900/10 text-slate-900 dark:bg-white/10 dark:text-white'
+                    : 'text-slate-700 hover:bg-slate-900/5 dark:text-slate-200 dark:hover:bg-white/10'
                 }`
               }
             >
@@ -119,13 +119,13 @@ function Navbar() {
       </nav>
 
       {open && (
-        <div className="space-y-1 border-t border-slate-200 bg-blue-100 px-4 py-3 md:hidden dark:border-blue-300/60 dark:bg-blue-100">
+        <div className="space-y-1 border-t border-slate-200 bg-[color:var(--ts-card)] px-4 py-3 md:hidden dark:border-white/10">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-2 text-sm font-medium text-black hover:bg-blue-200 dark:text-black dark:hover:bg-blue-200"
+              className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-900/5 dark:text-slate-200 dark:hover:bg-white/10"
             >
               {link.label}
             </NavLink>

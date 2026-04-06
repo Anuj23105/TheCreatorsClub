@@ -29,6 +29,20 @@ const bookingSchema = new mongoose.Schema(
       },
     ],
     totalAmount: { type: Number, required: true },
+
+    payment: {
+      provider: {
+        type: String,
+        enum: ['razorpay', 'manual', 'cash', 'upi'],
+        default: 'razorpay',
+      },
+      paymentId: { type: String, default: '' },
+      status: {
+        type: String,
+        enum: ['pending', 'captured', 'pay_on_service'],
+        default: 'pending',
+      },
+    },
   },
   { timestamps: true },
 )

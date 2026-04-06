@@ -6,6 +6,8 @@ import { useCart } from '../context/CartContext.jsx'
 import { createBooking } from '../services/trustserveApi.js'
 import { startPayment } from '../services/paymentGateway.js'
 
+const HIGH_VALUE_PAYMENT_THRESHOLD = 1000
+
 function CartPage() {
   const navigate = useNavigate()
   const { isCustomerAuthenticated } = useAuth()
@@ -23,9 +25,11 @@ function CartPage() {
   const [success, setSuccess] = useState('')
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [customerPhone, setCustomerPhone] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState('online')
 
   const platformFee = useMemo(() => (cartTotal > 0 ? 40 : 0), [cartTotal])
   const finalAmount = cartTotal + platformFee
+  const showOfflinePaymentOptions = useMemo(() => finalAmount > HIGH_VALUE_PAYMENT_THRESHOLD, [finalAmount])
 
   async function handleCheckout() {
     setError('')
@@ -44,26 +48,50 @@ function CartPage() {
     setSubmitting(true)
 
     try {
-      const paymentResult = await startPayment({
-        amount: finalAmount,
-        customerName: 'TrustServe Customer',
-        customerEmail: '',
-        customerPhone,
-      })
+      let paymentResult = {
+        provider: 'cash',
+        paymentId: '',
+        status: 'pay_on_service',
+      }
+
+      const effectivePaymentMethod = showOfflinePaymentOptions ? paymentMethod : 'online'
+
+      if (effectivePaymentMethod === 'online') {
+        paymentResult = await startPayment({
+          amount: finalAmount,
+          customerName: 'TrustServe Customer',
+          customerEmail: '',
+          customerPhone,
+        })
+      } else {
+        paymentResult = {
+          provider: effectivePaymentMethod,
+          paymentId: '',
+          status: 'pay_on_service',
+        }
+      }
 
       const bookingRequests = []
 
       items.forEach((item) => {
         for (let i = 0; i < item.quantity; i += 1) {
+          const paymentNoteSuffix =
+            paymentResult.provider === 'cash'
+              ? 'Payment method: Cash (pay at service)'
+              : paymentResult.provider === 'upi'
+                ? 'Payment method: UPI (pay at service)'
+                : ''
+
           bookingRequests.push(
             createBooking({
               workerId: item.workerId,
               service: item.serviceType,
               date: item.date,
               time: item.time,
-              notes: item.notes,
+              notes: [item.notes, paymentNoteSuffix].filter(Boolean).join('\n'),
               paymentId: paymentResult.paymentId,
               paymentProvider: paymentResult.provider,
+              paymentStatus: paymentResult.status,
             }),
           )
         }
@@ -79,7 +107,14 @@ function CartPage() {
       }
 
       clearCart()
-      setSuccess(`Payment successful (${paymentResult.paymentId}). Your services are booked.`)
+
+      if (paymentResult.provider === 'cash') {
+        setSuccess('Booking confirmed. Pay by cash when the worker arrives.')
+      } else if (paymentResult.provider === 'upi') {
+        setSuccess('Booking confirmed. Pay via UPI when the worker arrives.')
+      } else {
+        setSuccess(`Payment successful (${paymentResult.paymentId}). Your services are booked.`)
+      }
     } catch (err) {
       setError(err.message)
     } finally {
@@ -210,7 +245,14 @@ function CartPage() {
           <aside className="glass-card h-fit rounded-2xl p-5">
             <h2 className="text-lg font-semibold">Payment Summary</h2>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Gateway: {import.meta.env.VITE_PAYMENT_PROVIDER === 'manual' ? 'Manual test mode' : 'Razorpay'}
+              Gateway:{' '}
+              {showOfflinePaymentOptions && paymentMethod !== 'online'
+                ? paymentMethod === 'cash'
+                  ? 'Cash'
+                  : 'UPI'
+                : import.meta.env.VITE_PAYMENT_PROVIDER === 'manual'
+                  ? 'Manual test mode'
+                  : 'Razorpay'}
             </p>
             <div className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between">
@@ -228,7 +270,7 @@ function CartPage() {
             </div>
 
             <label className="mt-4 block text-xs font-semibold uppercase text-slate-500">
-              Contact Number (for payment)
+              Contact Number
             </label>
             <input
               value={customerPhone}
@@ -237,13 +279,68 @@ function CartPage() {
               className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
             />
 
+            {showOfflinePaymentOptions && (
+              <div className="mt-4">
+                <p className="text-xs font-semibold uppercase text-slate-500">Payment method (₹1000+)</p>
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('online')}
+                    className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+                      paymentMethod === 'online'
+                        ? 'border-sky-600 bg-sky-600 text-white'
+                        : 'border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    Online
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('upi')}
+                    className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+                      paymentMethod === 'upi'
+                        ? 'border-sky-600 bg-sky-600 text-white'
+                        : 'border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    UPI
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('cash')}
+                    className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+                      paymentMethod === 'cash'
+                        ? 'border-sky-600 bg-sky-600 text-white'
+                        : 'border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    Cash
+                  </button>
+                </div>
+
+                {paymentMethod !== 'online' && (
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                    Pay on service completion/arrival. This skips online payment.
+                  </p>
+                )}
+              </div>
+            )}
+
             <button
               type="button"
               onClick={handleCheckout}
               disabled={submitting}
               className="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
             >
-              {submitting ? 'Opening payment...' : 'Pay & Confirm Services'}
+              {submitting
+                ? paymentMethod === 'online' || !showOfflinePaymentOptions
+                  ? 'Opening payment...'
+                  : 'Confirming...'
+                : paymentMethod === 'cash' && showOfflinePaymentOptions
+                  ? 'Confirm (Cash)'
+                  : paymentMethod === 'upi' && showOfflinePaymentOptions
+                    ? 'Confirm (UPI)'
+                    : 'Pay & Confirm Services'}
             </button>
 
             <button

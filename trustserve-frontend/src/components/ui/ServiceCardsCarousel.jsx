@@ -52,7 +52,7 @@ function ServiceCardsCarousel() {
       return
     }
 
-    const cardWidth = 380
+    const cardWidth = 320
     scrollRef.current.scrollBy({
       left: direction === 'left' ? -cardWidth : cardWidth,
       behavior: 'smooth',
@@ -80,23 +80,25 @@ function ServiceCardsCarousel() {
         className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {popularServices.map((service) => (
-          <article key={service.id} className="min-w-[310px] snap-start sm:min-w-[360px]">
+          <article key={service.id} className="min-w-[260px] snap-start sm:min-w-[300px]">
             <div className="overflow-hidden rounded-2xl bg-slate-200">
-              <img src={service.image} alt={service.title} className="h-[230px] w-full object-cover" />
+              <img src={service.image} alt={service.title} className="h-[170px] w-full object-cover sm:h-[180px]" />
             </div>
 
             <div className="pt-3">
-              <h3 className="text-[22px] font-semibold leading-tight text-slate-900 dark:text-slate-100">
+              <h3 className="text-[16px] font-semibold leading-snug text-slate-900 dark:text-slate-100 sm:text-[17px]">
                 {service.title}
               </h3>
 
-              <p className="mt-2 flex items-center gap-1 text-[32px] text-slate-700 dark:text-slate-200">
-                <Star size={18} className="fill-current" />
-                <span className="text-[34px]">{service.rating.toFixed(2)}</span>
-                <span className="text-[30px]">({service.votes})</span>
+              <p className="mt-2 flex items-center gap-1 text-[16px] text-slate-700 dark:text-slate-200 sm:text-[17px]">
+                <Star size={14} className="fill-current" />
+                <span className="font-medium">{service.rating.toFixed(2)}</span>
+                <span className="text-slate-600 dark:text-slate-300">({service.votes})</span>
               </p>
 
-              <p className="mt-1 text-3xl font-medium text-slate-900 dark:text-slate-100">Rs {service.price}</p>
+              <p className="mt-1 text-[18px] font-semibold text-slate-900 dark:text-slate-100 sm:text-[19px]">
+                Rs {service.price}
+              </p>
             </div>
           </article>
         ))}

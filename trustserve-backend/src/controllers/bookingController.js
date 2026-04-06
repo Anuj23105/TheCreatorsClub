@@ -8,10 +8,25 @@ const createBookingValidation = [
   body('workerId').notEmpty().withMessage('Worker is required'),
   body('date').notEmpty().withMessage('Date is required'),
   body('time').notEmpty().withMessage('Time is required'),
+  body('paymentProvider').optional().isIn(['razorpay', 'manual', 'cash', 'upi']).withMessage('Invalid payment provider'),
+  body('paymentStatus')
+    .optional()
+    .isIn(['pending', 'captured', 'pay_on_service'])
+    .withMessage('Invalid payment status'),
+  body('paymentId').optional().isString().withMessage('Invalid payment id'),
 ]
 
 const createBooking = asyncHandler(async (req, res) => {
-  const { serviceType, workerId, date, time, notes = '' } = req.body
+  const {
+    serviceType,
+    workerId,
+    date,
+    time,
+    notes = '',
+    paymentProvider,
+    paymentId,
+    paymentStatus,
+  } = req.body
 
   if (date === '2026-04-01') {
     return res.status(409).json({ message: 'Selected slot is no longer available. Please choose another slot.' })
@@ -29,6 +44,15 @@ const createBooking = asyncHandler(async (req, res) => {
   ]
   const totalAmount = priceBreakdown.reduce((sum, item) => sum + item.amount, 0)
 
+  const resolvedPaymentProvider = paymentProvider || (paymentId ? 'razorpay' : 'razorpay')
+  const resolvedPaymentStatus =
+    paymentStatus ||
+    (resolvedPaymentProvider === 'cash' || resolvedPaymentProvider === 'upi'
+      ? 'pay_on_service'
+      : paymentId
+        ? 'captured'
+        : 'pending')
+
   const booking = await Booking.create({
     customer: req.user._id,
     worker: worker._id,
@@ -38,6 +62,11 @@ const createBooking = asyncHandler(async (req, res) => {
     status: 'worker_assigned',
     priceBreakdown,
     totalAmount,
+    payment: {
+      provider: resolvedPaymentProvider,
+      paymentId: paymentId || '',
+      status: resolvedPaymentStatus,
+    },
   })
 
   return res.status(201).json({
@@ -45,6 +74,7 @@ const createBooking = asyncHandler(async (req, res) => {
     status: booking.status,
     totalAmount: booking.totalAmount,
     priceBreakdown: booking.priceBreakdown,
+    payment: booking.payment,
   })
 })
 
