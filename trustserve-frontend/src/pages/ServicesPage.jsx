@@ -8,6 +8,7 @@ import WorkerCard from '../components/ui/WorkerCard.jsx'
 import RatingStars from '../components/ui/RatingStars.jsx'
 import { useWorkers } from '../hooks/useWorkers.js'
 import { categories } from '../services/trustserveApi.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 const dummyCustomerReviews = [
   {
@@ -45,6 +46,7 @@ const dummyCustomerReviews = [
 ]
 
 function ServicesPage() {
+  const { tr, trCategory } = useLanguage()
   const [searchParams] = useSearchParams()
   const searchQuery = searchParams.toString()
   const [category, setCategory] = useState('All')
@@ -80,10 +82,10 @@ function ServicesPage() {
   }, [searchQuery])
 
   function useCurrentLocation() {
-    setLocationStatus('Detecting current location...')
+    setLocationStatus(tr('Detecting current location...'))
 
     if (!navigator.geolocation) {
-      setLocationStatus('Geolocation is not supported in this browser.')
+      setLocationStatus(tr('Geolocation is not supported in this browser.'))
       return
     }
 
@@ -92,11 +94,11 @@ function ServicesPage() {
         const lat = position.coords.latitude
         const lng = position.coords.longitude
         setCurrentCoords({ lat, lng })
-        setLocation(`Current location (${lat.toFixed(4)}, ${lng.toFixed(4)})`)
-        setLocationStatus('Current location selected.')
+        setLocation(`${tr('Current location')} (${lat.toFixed(4)}, ${lng.toFixed(4)})`)
+        setLocationStatus(tr('Current location selected.'))
       },
       () => {
-        setLocationStatus('Unable to access current location. Please enter it manually.')
+        setLocationStatus(tr('Unable to access current location. Please enter it manually.'))
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
     )
@@ -118,9 +120,9 @@ function ServicesPage() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold">Service Discovery</h1>
+      <h1 className="text-3xl font-bold">{tr('Service Discovery')}</h1>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-        Discover verified workers by category, ratings, and location proximity.
+        {tr('Discover verified workers by category, ratings, and location proximity.')}
       </p>
 
       <section className="glass-card mt-6 grid gap-3 rounded-2xl p-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -130,7 +132,7 @@ function ServicesPage() {
           className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
         >
           {categories.map((item) => (
-            <option key={item}>{item}</option>
+            <option key={item}>{trCategory(item)}</option>
           ))}
         </select>
 
@@ -139,20 +141,20 @@ function ServicesPage() {
           onChange={(event) => setMinRating(Number(event.target.value))}
           className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
         >
-          <option value={0}>Any Rating</option>
-          <option value={4}>4+ Stars</option>
-          <option value={4.5}>4.5+ Stars</option>
+          <option value={0}>{tr('Any Rating')}</option>
+          <option value={4}>{tr('4+ Stars')}</option>
+          <option value={4.5}>{tr('4.5+ Stars')}</option>
         </select>
 
         <input
           value={location}
           onChange={(event) => setLocation(event.target.value)}
-          placeholder="Location"
+          placeholder={tr('Location')}
           className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
         />
 
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase text-slate-500">Distance: {maxDistance} km</label>
+          <label className="mb-1 block text-xs font-semibold uppercase text-slate-500">{tr('Distance')}: {maxDistance} km</label>
           <input
             value={maxDistance}
             onChange={(event) => setMaxDistance(Number(event.target.value))}
@@ -168,7 +170,7 @@ function ServicesPage() {
           onClick={useCurrentLocation}
           className="inline-flex items-center justify-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-700 dark:border-sky-700 dark:bg-sky-900/20 dark:text-sky-300"
         >
-          <LocateFixed size={16} /> Use Current Location
+          <LocateFixed size={16} /> {tr('Use Current Location')}
         </button>
       </section>
 
@@ -202,8 +204,8 @@ function ServicesPage() {
 
         {!loading && !workers.length && (
           <EmptyState
-            title="No workers found"
-            description="Try increasing distance or changing category to discover available professionals."
+            title={tr('No workers found')}
+            description={tr('Try increasing distance or changing category to discover available professionals.')}
           />
         )}
 
@@ -212,14 +214,14 @@ function ServicesPage() {
 
       <section className="mt-8 glass-card rounded-2xl p-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-2xl font-bold">Customer Reviews & Ratings</h2>
+          <h2 className="text-2xl font-bold">{tr('Customer Reviews & Ratings')}</h2>
           <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
-            Demo Reviews
+            {tr('Demo Reviews')}
           </span>
         </div>
 
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Recent feedback shared by customers for listed workers.
+          {tr('Recent feedback shared by customers for listed workers.')}
         </p>
 
         <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -229,7 +231,7 @@ function ServicesPage() {
                 <div>
                   <p className="text-sm font-semibold">{review.customer}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    For {review.worker} • {review.service}
+                    {tr('For')} {review.worker} • {trCategory(review.service)}
                   </p>
                 </div>
                 <div className="flex items-center gap-1">

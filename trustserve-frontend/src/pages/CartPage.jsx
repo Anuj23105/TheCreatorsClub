@@ -5,10 +5,12 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useCart } from '../context/CartContext.jsx'
 import { createBooking } from '../services/trustserveApi.js'
 import { startPayment } from '../services/paymentGateway.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 const HIGH_VALUE_PAYMENT_THRESHOLD = 1000
 
 function CartPage() {
+  const { tr } = useLanguage()
   const navigate = useNavigate()
   const { isCustomerAuthenticated } = useAuth()
   const {
@@ -36,7 +38,7 @@ function CartPage() {
     setSuccess('')
 
     if (!items.length) {
-      setError('Your cart is empty.')
+      setError(tr('Your cart is empty.'))
       return
     }
 
@@ -77,9 +79,9 @@ function CartPage() {
         for (let i = 0; i < item.quantity; i += 1) {
           const paymentNoteSuffix =
             paymentResult.provider === 'cash'
-              ? 'Payment method: Cash (pay at service)'
+              ? tr('Payment method: Cash (pay at service)')
               : paymentResult.provider === 'upi'
-                ? 'Payment method: UPI (pay at service)'
+                ? tr('Payment method: UPI (pay at service)')
                 : ''
 
           bookingRequests.push(
@@ -102,18 +104,18 @@ function CartPage() {
 
       if (failed.length > 0) {
         throw new Error(
-          failed[0].reason?.message || 'Some services could not be booked. Please try again.',
+          failed[0].reason?.message || tr('Some services could not be booked. Please try again.'),
         )
       }
 
       clearCart()
 
       if (paymentResult.provider === 'cash') {
-        setSuccess('Booking confirmed. Pay by cash when the worker arrives.')
+        setSuccess(tr('Booking confirmed. Pay by cash when the worker arrives.'))
       } else if (paymentResult.provider === 'upi') {
-        setSuccess('Booking confirmed. Pay via UPI when the worker arrives.')
+        setSuccess(tr('Booking confirmed. Pay via UPI when the worker arrives.'))
       } else {
-        setSuccess(`Payment successful (${paymentResult.paymentId}). Your services are booked.`)
+        setSuccess(`${tr('Payment successful')} (${paymentResult.paymentId}). ${tr('Your services are booked.')}`)
       }
     } catch (err) {
       setError(err.message)
@@ -136,30 +138,30 @@ function CartPage() {
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Your Service Cart</h1>
+          <h1 className="text-3xl font-bold">{tr('Your Service Cart')}</h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            Review selected services and pay to confirm your bookings.
+            {tr('Review selected services and pay to confirm your bookings.')}
           </p>
         </div>
         <Link
           to="/services"
           className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold dark:border-slate-700"
         >
-          Add More Services
+          {tr('Add More Services')}
         </Link>
       </div>
 
       {!items.length && (
         <section className="glass-card mt-6 rounded-2xl p-6 text-center">
-          <p className="text-lg font-semibold">Your cart is empty</p>
+          <p className="text-lg font-semibold">{tr('Your cart is empty')}</p>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            Browse workers and add services to continue.
+            {tr('Browse workers and add services to continue.')}
           </p>
           <Link
             to="/services"
             className="mt-4 inline-flex rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white"
           >
-            Explore Services
+            {tr('Explore Services')}
           </Link>
         </section>
       )}
@@ -211,7 +213,7 @@ function CartPage() {
                           type="button"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="rounded-lg p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
-                          aria-label="Decrease quantity"
+                          aria-label={tr('Decrease quantity')}
                         >
                           <Minus size={14} />
                         </button>
@@ -220,7 +222,7 @@ function CartPage() {
                           type="button"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="rounded-lg p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
-                          aria-label="Increase quantity"
+                          aria-label={tr('Increase quantity')}
                         >
                           <Plus size={14} />
                         </button>
@@ -231,11 +233,11 @@ function CartPage() {
                       value={item.notes}
                       onChange={(event) => updateCartItem(item.id, { notes: event.target.value })}
                       rows={2}
-                      placeholder="Notes for this service"
+                      placeholder={tr('Notes for this service')}
                       className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
                     />
 
-                    <p className="mt-3 text-sm font-semibold">Subtotal: Rs {item.fee * item.quantity}</p>
+                    <p className="mt-3 text-sm font-semibold">{tr('Subtotal')}: Rs {item.fee * item.quantity}</p>
                   </div>
                 </div>
               </article>
@@ -243,45 +245,45 @@ function CartPage() {
           </div>
 
           <aside className="glass-card h-fit rounded-2xl p-5">
-            <h2 className="text-lg font-semibold">Payment Summary</h2>
+            <h2 className="text-lg font-semibold">{tr('Payment Summary')}</h2>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Gateway:{' '}
+              {tr('Gateway')}:{' '}
               {showOfflinePaymentOptions && paymentMethod !== 'online'
                 ? paymentMethod === 'cash'
-                  ? 'Cash'
+                  ? tr('Cash')
                   : 'UPI'
                 : import.meta.env.VITE_PAYMENT_PROVIDER === 'manual'
-                  ? 'Manual test mode'
+                  ? tr('Manual test mode')
                   : 'Razorpay'}
             </p>
             <div className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Items ({cartCount})</span>
+                <span>{tr('Items')} ({cartCount})</span>
                 <span>Rs {cartTotal}</span>
               </div>
               <div className="flex justify-between">
-                <span>Platform fee</span>
+                <span>{tr('Platform fee')}</span>
                 <span>Rs {platformFee}</span>
               </div>
               <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-bold dark:border-slate-700">
-                <span>Total payable</span>
+                <span>{tr('Total payable')}</span>
                 <span>Rs {finalAmount}</span>
               </div>
             </div>
 
             <label className="mt-4 block text-xs font-semibold uppercase text-slate-500">
-              Contact Number
+              {tr('Contact Number')}
             </label>
             <input
               value={customerPhone}
               onChange={(event) => setCustomerPhone(event.target.value)}
-              placeholder="e.g. 9876543210"
+              placeholder={tr('e.g. 9876543210')}
               className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
             />
 
             {showOfflinePaymentOptions && (
               <div className="mt-4">
-                <p className="text-xs font-semibold uppercase text-slate-500">Payment method (₹1000+)</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">{tr('Payment method (₹1000+)')}</p>
                 <div className="mt-2 grid grid-cols-3 gap-2">
                   <button
                     type="button"
@@ -292,7 +294,7 @@ function CartPage() {
                         : 'border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'
                     }`}
                   >
-                    Online
+                    {tr('Online')}
                   </button>
                   <button
                     type="button"
@@ -314,13 +316,13 @@ function CartPage() {
                         : 'border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'
                     }`}
                   >
-                    Cash
+                    {tr('Cash')}
                   </button>
                 </div>
 
                 {paymentMethod !== 'online' && (
                   <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                    Pay on service completion/arrival. This skips online payment.
+                    {tr('Pay on service completion/arrival. This skips online payment.')}
                   </p>
                 )}
               </div>
@@ -334,13 +336,13 @@ function CartPage() {
             >
               {submitting
                 ? paymentMethod === 'online' || !showOfflinePaymentOptions
-                  ? 'Opening payment...'
-                  : 'Confirming...'
+                  ? tr('Opening payment...')
+                  : tr('Confirming...')
                 : paymentMethod === 'cash' && showOfflinePaymentOptions
-                  ? 'Confirm (Cash)'
+                  ? tr('Confirm (Cash)')
                   : paymentMethod === 'upi' && showOfflinePaymentOptions
-                    ? 'Confirm (UPI)'
-                    : 'Pay & Confirm Services'}
+                    ? tr('Confirm (UPI)')
+                    : tr('Pay & Confirm Services')}
             </button>
 
             <button
@@ -348,7 +350,7 @@ function CartPage() {
               onClick={clearCart}
               className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold dark:border-slate-700"
             >
-              Clear Cart
+              {tr('Clear Cart')}
             </button>
 
             {error && (
@@ -369,9 +371,9 @@ function CartPage() {
       {showLoginModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 px-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl dark:bg-slate-900">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Login required</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{tr('Login required')}</h3>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Please login as customer to pay and confirm these services.
+              {tr('Please login as customer to pay and confirm these services.')}
             </p>
             <div className="mt-5 flex gap-3">
               <button
@@ -379,14 +381,14 @@ function CartPage() {
                 onClick={goToLogin}
                 className="flex-1 rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
               >
-                Login / Signup
+                {tr('Login / Signup')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowLoginModal(false)}
                 className="flex-1 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
               >
-                Cancel
+                {tr('Cancel')}
               </button>
             </div>
           </div>

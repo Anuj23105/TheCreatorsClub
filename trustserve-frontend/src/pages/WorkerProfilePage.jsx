@@ -4,8 +4,10 @@ import { useParams, Link } from 'react-router-dom'
 import RatingStars from '../components/ui/RatingStars.jsx'
 import SkeletonCard from '../components/ui/SkeletonCard.jsx'
 import { fetchReviews, fetchWorkerById, submitReview } from '../services/trustserveApi.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 function WorkerProfilePage() {
+  const { tr, trCategory } = useLanguage()
   const { workerId } = useParams()
   const [worker, setWorker] = useState(null)
   const [reviews, setReviews] = useState([])
@@ -61,7 +63,7 @@ function WorkerProfilePage() {
   if (!worker) {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <p>{error || 'Worker not found.'}</p>
+        <p>{error || tr('Worker not found.')}</p>
       </main>
     )
   }
@@ -76,23 +78,23 @@ function WorkerProfilePage() {
               <h1 className="text-3xl font-bold">{worker.name}</h1>
               {worker.verified && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-                  <BadgeCheck size={14} /> Verified
+                  <BadgeCheck size={14} /> {tr('Verified')}
                 </span>
               )}
             </div>
-            <p className="text-sm font-medium text-sky-700 dark:text-sky-300">{worker.category}</p>
+            <p className="text-sm font-medium text-sky-700 dark:text-sky-300">{trCategory(worker.category)}</p>
             <div className="mt-2 flex items-center gap-2">
               <RatingStars value={worker.rating} />
               <span className="font-semibold">{worker.rating}</span>
             </div>
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{worker.about}</p>
-            <p className="mt-3 text-sm">Experience: {worker.experienceYears}+ years</p>
-            <p className="text-sm">Completed jobs: {worker.completedJobs}</p>
+            <p className="mt-3 text-sm">{tr('Experience')}: {worker.experienceYears}+ {tr('yrs')}</p>
+            <p className="text-sm">{tr('Completed jobs')}: {worker.completedJobs}</p>
           </div>
         </div>
 
         <div className="mt-5">
-          <h2 className="text-xl font-semibold">Skills</h2>
+          <h2 className="text-xl font-semibold">{tr('Skills')}</h2>
           <div className="mt-2 flex flex-wrap gap-2">
             {worker.skills.map((skill) => (
               <span key={skill} className="rounded-full bg-slate-100 px-3 py-1 text-sm dark:bg-slate-800">
@@ -103,7 +105,7 @@ function WorkerProfilePage() {
         </div>
 
         <div className="mt-5">
-          <h2 className="text-xl font-semibold">Availability Calendar</h2>
+          <h2 className="text-xl font-semibold">{tr('Availability Calendar')}</h2>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {worker.availability.map((slot) => (
               <div key={slot} className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700">
@@ -117,7 +119,7 @@ function WorkerProfilePage() {
           to="/booking"
           className="mt-5 inline-flex rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white"
         >
-          Book Now
+          {tr('Book Now')}
         </Link>
       </section>
 
@@ -128,7 +130,7 @@ function WorkerProfilePage() {
           </section>
         )}
         <section className="glass-card rounded-2xl p-5">
-          <h3 className="text-lg font-semibold">Rating & Reviews</h3>
+          <h3 className="text-lg font-semibold">{tr('Rating & Reviews')}</h3>
           <div className="mt-3 space-y-3">
             {reviews.map((review) => (
               <div key={review.id} className="rounded-xl border border-slate-200 p-3 dark:border-slate-700">
@@ -143,28 +145,28 @@ function WorkerProfilePage() {
         </section>
 
         <section className="glass-card rounded-2xl p-5">
-          <h3 className="text-lg font-semibold">Add Review</h3>
+          <h3 className="text-lg font-semibold">{tr('Add Review')}</h3>
           <form className="mt-3 space-y-3" onSubmit={handleReviewSubmit}>
             <select
               value={rating}
               onChange={(event) => setRating(Number(event.target.value))}
               className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
             >
-              <option value={5}>5 Stars</option>
-              <option value={4}>4 Stars</option>
-              <option value={3}>3 Stars</option>
-              <option value={2}>2 Stars</option>
-              <option value={1}>1 Star</option>
+              <option value={5}>{tr('5 Stars')}</option>
+              <option value={4}>{tr('4 Stars')}</option>
+              <option value={3}>{tr('3 Stars')}</option>
+              <option value={2}>{tr('2 Stars')}</option>
+              <option value={1}>{tr('1 Star')}</option>
             </select>
             <textarea
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               rows={3}
               className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
-              placeholder="Share your experience"
+              placeholder={tr('Share your experience')}
             />
             <button className="w-full rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
-              Submit Review
+              {tr('Submit Review')}
             </button>
           </form>
         </section>

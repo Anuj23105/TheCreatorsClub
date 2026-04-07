@@ -1,14 +1,9 @@
-import { Menu, ShoppingCart, UserRound } from 'lucide-react'
+import { Languages, Menu, ShoppingCart, UserRound } from 'lucide-react'
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useCart } from '../../context/CartContext.jsx'
-
-const links = [
-  { to: '/', label: 'Home' },
-  { to: '/services', label: 'Find Services' },
-  { to: '/booking', label: 'Book' },
-]
+import { useLanguage } from '../../context/LanguageContext.jsx'
 
 function Navbar() {
   const {
@@ -20,17 +15,23 @@ function Navbar() {
     logoutCustomer,
   } = useAuth()
   const { cartCount } = useCart()
+  const { t, isHindi, toggleLanguage } = useLanguage()
   const [open, setOpen] = useState(false)
   const isAuthenticated = isWorkerAuthenticated || isCustomerAuthenticated
+  const links = [
+    { to: '/', label: t.nav.home },
+    { to: '/services', label: t.nav.findServices },
+    { to: '/booking', label: t.nav.book },
+  ]
   const dashboardLink = isWorkerAuthenticated
-    ? { to: '/worker-dashboard', label: 'Worker Dashboard' }
+    ? { to: '/worker-dashboard', label: t.nav.workerDashboard }
     : isCustomerAuthenticated
-      ? { to: '/user-dashboard', label: 'User Dashboard' }
+      ? { to: '/user-dashboard', label: t.nav.userDashboard }
       : null
-  const skillsLink = !isCustomerAuthenticated ? { to: '/skills', label: 'Skills' } : null
+  const skillsLink = !isCustomerAuthenticated ? { to: '/skills', label: t.nav.skills } : null
   const sessionLabel = isWorkerAuthenticated
-    ? `Worker: ${workerUser?.name || 'Logged in'}`
-    : `Customer: ${customerUser?.name || 'Logged in'}`
+    ? `${t.nav.worker}: ${workerUser?.name || t.nav.loggedIn}`
+    : `${t.nav.customer}: ${customerUser?.name || t.nav.loggedIn}`
   const navLinks = [
     ...links,
     ...(skillsLink ? [skillsLink] : []),
@@ -46,7 +47,7 @@ function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-[color:var(--ts-card)] backdrop-blur-xl dark:border-white/10">
+    <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-(--ts-card) backdrop-blur-xl dark:border-white/10">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center">
           <img
@@ -57,9 +58,9 @@ function Navbar() {
         </Link>
 
         <button
-          className="rounded-lg p-2 text-[color:var(--ts-text)] md:hidden"
+          className="rounded-lg p-2 text-(--ts-text) md:hidden"
           onClick={() => setOpen((prev) => !prev)}
-          aria-label="Toggle menu"
+          aria-label={t.nav.toggleMenu}
         >
           <Menu size={20} />
         </button>
@@ -83,10 +84,18 @@ function Navbar() {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            aria-label={isHindi ? 'Switch to English' : 'Switch to Hindi'}
+          >
+            <Languages size={16} /> {t.nav.language}
+          </button>
           <Link
             to="/cart"
             className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            aria-label="Open cart"
+            aria-label={t.nav.openCart}
           >
             <ShoppingCart size={22} strokeWidth={2.2} />
             {cartCount > 0 && (
@@ -104,7 +113,7 @@ function Navbar() {
                 onClick={handleLogout}
                 className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
               >
-                Logout
+                {t.nav.logout}
               </button>
             </>
           ) : (
@@ -112,14 +121,14 @@ function Navbar() {
               to="/auth"
               className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
             >
-              <UserRound size={16} /> Login
+              <UserRound size={16} /> {t.nav.login}
             </Link>
           )}
         </div>
       </nav>
 
       {open && (
-        <div className="space-y-1 border-t border-slate-200 bg-[color:var(--ts-card)] px-4 py-3 md:hidden dark:border-white/10">
+        <div className="space-y-1 border-t border-slate-200 bg-(--ts-card) px-4 py-3 md:hidden dark:border-white/10">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -131,10 +140,18 @@ function Navbar() {
             </NavLink>
           ))}
           <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+              aria-label={isHindi ? 'Switch to English' : 'Switch to Hindi'}
+            >
+              <Languages size={16} /> {t.nav.language}
+            </button>
             <Link
               to="/cart"
               className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-              aria-label="Open cart"
+              aria-label={t.nav.openCart}
             >
               <ShoppingCart size={22} strokeWidth={2.2} />
               {cartCount > 0 && (
@@ -148,14 +165,14 @@ function Navbar() {
                 onClick={handleLogout}
                 className="w-full rounded-lg bg-slate-900 px-3 py-2 text-center text-sm font-semibold text-white dark:bg-slate-200 dark:text-slate-900"
               >
-                Logout
+                {t.nav.logout}
               </button>
             ) : (
               <Link
                 to="/auth"
                 className="w-full rounded-lg bg-sky-600 px-3 py-2 text-center text-sm font-semibold text-white"
               >
-                Login
+                {t.nav.login}
               </Link>
             )}
           </div>

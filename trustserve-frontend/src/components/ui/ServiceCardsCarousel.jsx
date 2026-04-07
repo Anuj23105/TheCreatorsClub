@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react'
 import { useRef } from 'react'
+import { useLanguage } from '../../context/LanguageContext.jsx'
 
 const popularServices = [
   {
@@ -46,6 +47,7 @@ const popularServices = [
 
 function ServiceCardsCarousel() {
   const scrollRef = useRef(null)
+  const { tr } = useLanguage()
 
   function scrollCards(direction) {
     if (!scrollRef.current) {
@@ -61,16 +63,16 @@ function ServiceCardsCarousel() {
 
   return (
     <section className="relative mt-8">
-      <h2 className="text-2xl font-bold">Popular Services</h2>
+      <h2 className="text-2xl font-bold">{tr('Popular Services')}</h2>
       <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-        Choose from frequently booked services near you.
+        {tr('Choose from frequently booked services near you.')}
       </p>
 
       <button
         type="button"
         onClick={() => scrollCards('left')}
         className="absolute left-[-10px] top-[45%] z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/95 dark:text-slate-100 dark:hover:bg-slate-800"
-        aria-label="Previous services"
+        aria-label={`${tr('Previous')} ${tr('Service')}`}
       >
         <ChevronLeft size={20} />
       </button>
@@ -87,7 +89,7 @@ function ServiceCardsCarousel() {
 
             <div className="pt-3">
               <h3 className="text-[16px] font-semibold leading-snug text-slate-900 dark:text-slate-100 sm:text-[17px]">
-                {service.title}
+                {tr(service.title)}
               </h3>
 
               <p className="mt-2 flex items-center gap-1 text-[16px] text-slate-700 dark:text-slate-200 sm:text-[17px]">
@@ -108,7 +110,7 @@ function ServiceCardsCarousel() {
         type="button"
         onClick={() => scrollCards('right')}
         className="absolute right-[-10px] top-[45%] z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/95 dark:text-slate-100 dark:hover:bg-slate-800"
-        aria-label="Next services"
+        aria-label={`${tr('Next')} ${tr('Service')}`}
       >
         <ChevronRight size={20} />
       </button>
