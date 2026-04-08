@@ -13,11 +13,13 @@ const { notFound, errorHandler } = require('./middleware/errorHandler')
 
 const app = express()
 
+const uploadsRoot = process.env.VERCEL ? path.join('/tmp', 'uploads') : path.join(process.cwd(), 'uploads')
+
 app.use(cors({ origin: process.env.CLIENT_ORIGIN?.split(',') || '*' }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan('dev'))
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
+app.use('/uploads', express.static(uploadsRoot))
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'trustserve-backend' })

@@ -1,5 +1,6 @@
 const express = require('express')
 const multer = require('multer')
+const fs = require('fs')
 const path = require('path')
 const {
   getWorkers,
@@ -15,9 +16,15 @@ const validate = require('../middleware/validate')
 
 const router = express.Router()
 
+const uploadsDir = process.env.VERCEL
+  ? path.join('/tmp', 'uploads', 'verification')
+  : path.join(process.cwd(), 'uploads', 'verification')
+
+fs.mkdirSync(uploadsDir, { recursive: true })
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), 'uploads', 'verification'))
+    cb(null, uploadsDir)
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname)
